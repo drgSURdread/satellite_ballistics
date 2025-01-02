@@ -1,59 +1,41 @@
 # Расчет траектории
-function calculate_trajectory(initial_velocity, initial_position, time, dt)
-    # Инициализация массивов для хранения результатов
-    x = [initial_position[1]]
-    y = [initial_position[2]]
-    z = [initial_position[3]]
+function calculate_trajectory(initial_velocity_vector, initial_position_vector, time, dt)
+    position = [initial_position_vector[1] initial_position_vector[2] initial_position_vector[3]]
     
     # Инициализация массива для хранения абсолютной скорости
     absolute_velocity = []
-
-    # Инициализация массива для хранения расстояния от центра Земли
     absolute_altitude = []
-
-    # Инициализация массивов для хранения скоростей и ускорений
     velocities = []
     accelerations = []
-
-    # Вычисление новых скоростей по формуле скорости
-    v = initial_velocity
+    v = initial_velocity_vector
 
     for t in 0:dt:time
-        # Вычисление ускорений по закону тяготения
-        r = norm([x[end], y[end], z[end]])
-        a = -G * M / r^3 * [x[end], y[end], z[end]]
+        last_position_vector = [position[end, 1], position[end, 2], position[end, 3]]
+        r = norm(last_position_vector)
+        a = -G * M / r^3 * last_position_vector
         
-        # Вычисление новых скоростей по формуле скорости
         v += a * dt
         
-        # Вычисление абсолютной скорости
-        absolute_v = norm(v)
+        position = vcat(
+            position,
+            transpose(
+                [
+                    last_position_vector[1] + v[1] * dt;
+                    last_position_vector[2] + v[2] * dt;
+                    last_position_vector[3] + v[3] * dt;
+                ]
+            )
+        )
         
-        # Вычисление расстояния от поверхности Земли
-        absolute_a = norm(r) - R_earth
+        push!(absolute_velocity, norm(v))
         
-        # Вычисление новых координат по формулам
-        x_new = x[end] + v[1] * dt
-        y_new = y[end] + v[2] * dt
-        z_new = z[end] + v[3] * dt
-        
-        # Добавление новых координат в массивы
-        push!(x, x_new)
-        push!(y, y_new)
-        push!(z, z_new)
-        
-        # Добавление новой абсолютной скорости в массив
-        push!(absolute_velocity, absolute_v)
-        
-        # Добавление нового расстояния от центра Земли в массив
-        push!(absolute_altitude, absolute_a)
+        push!(absolute_altitude, norm(r) - R_earth)
 
-        # Добавление новых скоростей и ускорений в массивы
         push!(velocities, v)
         push!(accelerations, a)
     end
 
-    return x, y, z, velocities, accelerations, absolute_velocity, absolute_altitude
+    return position[:, 1], position[:, 2], position[:, 3], velocities, accelerations, absolute_velocity, absolute_altitude
 end
 
 ## Получение точек сферы земли

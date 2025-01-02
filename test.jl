@@ -21,6 +21,7 @@ for j in 1:N
         total_time,
         dt
     )
+
     push!(
         traces, 
         scatter(
