@@ -39,15 +39,15 @@ function calculate_trajectory(initial_velocity_vector, initial_position_vector, 
 end
 
 ## Получение точек сферы земли
-function spherical_to_cartesian(phi::Float64, theta::Float64)
-    x = R_earth * sin(theta) * cos(phi)
-    y = R_earth * sin(theta) * sin(phi)
-    z = R_earth * cos(theta)
+function spherical_to_cartesian(phi::Float64, theta::Float64, scale::Real=1.0)
+    x = R_earth * scale * sin(theta) * cos(phi)
+    y = R_earth * scale * sin(theta) * sin(phi)
+    z = R_earth * scale * cos(theta)
     return (x, y, z)
 end
 
 # Визуализация Земли
-function get_earth_sphere()
+function get_earth_sphere(;scale::Float64=1.0)
     phi = range(0, stop=2*pi, length=100)
     theta = range(0, stop=pi, length=50)
 
@@ -57,12 +57,12 @@ function get_earth_sphere()
 
     for i in 1:length(phi)
         for j in 1:length(theta)
-            result = spherical_to_cartesian(phi[i], theta[j])
+            result = spherical_to_cartesian(phi[i], theta[j], scale)
             x_earth[i,j] = result[1]
             y_earth[i,j] = result[2]
             z_earth[i,j] = result[3]
         end
     end
     
-    return surface(x=x_earth, y=y_earth, z=z_earth, color=:blue, labels="Земля", alpha=0.9)
+    return surface(x=x_earth, y=y_earth, z=z_earth, colorscale="YlGnBu", opacity=0.7, showscale=false)
 end
